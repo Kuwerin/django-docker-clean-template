@@ -1,0 +1,46 @@
+version: "2"
+services:
+  postgres:
+    image: postgres:latest
+#     build: ./postgres
+    volumes:
+      - ./psql_data:/var/lib/postgresql/data
+#    ports:
+#            - "0.0.0.0:5432:5432"
+    env_file:
+      - .env.postgres.dev
+
+  mongo:
+    image: 'mongo'
+    env_file:
+      - .env.mongo.dev
+    volumes:
+    - ./mongo_data:/data/db
+    ports:
+         - '27017:27017'
+
+  pgbouncer:
+    image: edoburu/pgbouncer
+    env_file:
+      - .env.pgbouncer.dev
+    ports:
+      - "5432:5432"
+    depends_on:
+      - postgres
+  
+  web:
+    build: ./vk_analytics
+    command: python manage.py runserver '0.0.0.0:8000'
+    volumes: 
+      - ./vk_analytics/:/code/
+    ports: 
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      - pgbouncer
+      - postgres
+    restart: always
+    env_file:
+      - .env.django.dev
+
+volumes:
+  psql_data:

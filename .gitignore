@@ -1,0 +1,8 @@
+venv
+.env*
+.DS_Store
+.git
+__pycache__
+appSearch
+mongo_data
+psql_data
